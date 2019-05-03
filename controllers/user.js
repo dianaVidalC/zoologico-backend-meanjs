@@ -5,7 +5,14 @@ const bcrypt = require('bcrypt-nodejs');
 //Modelos
 const User = require('../models/user');
 
+//Servicio Jwt
+const jwt = require('../services/jwt');
+
 //acciones
+
+function all(req, res) {
+    return res.status(200).send({ message: 'token' });
+}
 
 function saveUser(req, res) {
 
@@ -79,7 +86,14 @@ function login(req, res) {
                 if (userlogin) {
                     bcrypt.compare(password, userlogin.password, (err, check) => {
                         if (check) {
-                            res.status(200).send({ userlogin });
+                            if (params.gettoken) {
+                                //Comprobar y generar el token
+                                res.status(200).send({
+                                    token: jwt.createToken(userlogin)
+                                })
+                            } else {
+                                res.status(200).send({ userlogin });
+                            }
                         } else {
                             res.status(404).send({ message: 'Contraseña incorrecta.' })
                         }
@@ -97,5 +111,6 @@ function login(req, res) {
 }
 module.exports = {
     saveUser,
-    login
+    login,
+    all
 }
